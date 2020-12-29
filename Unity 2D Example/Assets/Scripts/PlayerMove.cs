@@ -51,7 +51,8 @@ public class PlayerMove : MonoBehaviour
         //Move Speed
         float h = Input.GetAxisRaw("Horizontal");
         //왼쪽 오른쪽으로 움직임
-        rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
+        rigid.AddForce(Vector2.right * h * 2, ForceMode2D.Impulse); 
+        //경사로 오르기 위해 *2함 = 한번에 작용하는 힘의 크기가 커진다
 
         //Max Speed
         //velocity: 리지드 바디의 현재 속도
@@ -65,17 +66,45 @@ public class PlayerMove : MonoBehaviour
         if (rigid.velocity.y < 0) //y가 내려갈 때만 ray를 쏜다
         {
             Debug.DrawRay(rigid.position, Vector3.down, new Color(0, 1, 0));
-
             RaycastHit2D rayHit = Physics2D.Raycast(rigid.position, Vector3.down, 1, LayerMask.GetMask("Platform"));
-
             if (rayHit.collider != null)
             {
                 if (rayHit.distance < 0.5f)
                     anim.SetBool("isJumping", false);
             }
-        }
-        
+        } 
 
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+            OnDamaged(collision.transform.position);
+    }
+
+    void OnDamaged(Vector2 targetPos)
+    {
+        //Change Layer (Immortal Active)
+        gameObject.layer = 11; //PlayerDamaged
+
+        //View Alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+
+        //Reaction Force
+        int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
+        rigid.AddForce(new Vector2(dirc, 1) * 7, ForceMode2D.Impulse);
+
+        //Animation
+        anim.SetTrigger("doDamaged");
+
+        Invoke("OffDamaged", 3);
+
+    }
+    
+    void OffDamaged()
+    {
+        gameObject.layer = 10;
+        spriteRenderer.color = new Color(1, 1, 1, 1);
     }
 
 
