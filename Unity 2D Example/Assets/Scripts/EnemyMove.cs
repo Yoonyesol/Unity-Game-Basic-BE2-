@@ -7,6 +7,7 @@ public class EnemyMove : MonoBehaviour
     Rigidbody2D rigid;
     Animator anim;
     SpriteRenderer spriteRenderer;
+    CapsuleCollider2D capsuleCollider;
 
     public int nextMove;
 
@@ -15,7 +16,8 @@ public class EnemyMove : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
+        
         //Invoke : 주어진 시간이 지난 뒤, 지정한 함수를 실행하는 함수
         Invoke("Think", 5);
     }
@@ -59,5 +61,24 @@ public class EnemyMove : MonoBehaviour
 
         CancelInvoke();
         Invoke("Think", 2);
+    }
+
+    public void OnDamaged()
+    {
+        //Sprite Alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+        //Sprite Flip Y
+        spriteRenderer.flipY = true;
+        //Collider Disabled
+        capsuleCollider.enabled = false;
+        //Die Effect Ju
+        rigid.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+        //Destroy
+        Invoke("DeActive", 5);
+    }
+
+    void DeActive()
+    {
+        gameObject.SetActive(false);
     }
 }
