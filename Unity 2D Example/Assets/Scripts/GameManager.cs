@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using.UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -40,20 +40,15 @@ public class GameManager : MonoBehaviour
         {
             //Player Control Lock
             Time.timeScale = 0;
-            //Result UI
-            Debug.Log("게임 클리어!");
-            //Retry Button UI
-            UIRestartBtn.SetActive(true);
+            //Restart Button UI
             Text btnText = UIRestartBtn.GetComponentInChildren<Text>();
-            btnText.text = "Game Clear!";
-            UIRestartBtn.SetActive(true);
+            btnText.text = "Clear!";
+            ViewBtn();
         }
-
 
         //Calculate Point
         totalPoint += stagePoint;
         stagePoint = 0;
-
     }
     
     public void HealthDown()
@@ -62,16 +57,13 @@ public class GameManager : MonoBehaviour
         {
             health--;
             UIhealth[health].color = new Color(1, 0, 1, 0.2f);
-        }
-            
-        else
-        {
+        } else
+        {   //All Health UI Off
+            UIhealth[0].color = new Color(1, 0, 1, 0.2f);
             //Player Die Effect
             player.OnDie();
-            //Result UI
-            Debug.Log("죽었습니다!");
             //Retry Button UI
-            UIRestartBtn.SetActive(true);
+            ViewBtn();
         }
     }
 
@@ -84,21 +76,25 @@ public class GameManager : MonoBehaviour
             {
                 PlayerReposition();
             }
-
             //Health Down
             HealthDown();
         }
-
     }
 
     void PlayerReposition()
     {
-        player.transform.position = new Vector3(0, 0, -1);
+        player.transform.position = new Vector3(-5.21f, 0.49f,  -1);
         player.VelocityZero();
+    }
+
+    void ViewBtn()
+    {
+        UIRestartBtn.SetActive(true);
     }
 
     public void Restart()
     {
-        Sce
+        Time.timeScale = 1;
+        SceneManager.LoadScene(0);
     }
 }

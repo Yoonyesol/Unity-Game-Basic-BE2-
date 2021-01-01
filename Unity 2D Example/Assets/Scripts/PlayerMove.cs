@@ -5,19 +5,54 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     public GameManager gameManager;
+    public AudioClip audioJump;
+    public AudioClip audioAttack;
+    public AudioClip audioDamaged;
+    public AudioClip audioItem;
+    public AudioClip audioDie;
+    public AudioClip audioFinish;
     public float maxSpeed;
     public float JumpPower;
+
     Rigidbody2D rigid;
     SpriteRenderer spriteRenderer;
-    Animator anim;
     CapsuleCollider2D capsuleCollider;
+    Animator anim;
+    AudioSource audioSource;
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        anim = GetComponent<Animator>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+        anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    void PlaySound(string action)
+    {
+        switch (action)
+        {
+            case "JUMP":
+                audioSource.clip = audioJump;
+                break;
+            case "ATTACK":
+                audioSource.clip = audioAttack;
+                break;
+            case "DAMAGED":
+                audioSource.clip = audioDamaged;
+                break;
+            case "ITEM":
+                audioSource.clip = audioItem;
+                break;
+            case "DIE":
+                audioSource.clip = audioDie;
+                break;
+            case "FINISH":
+                audioSource.clip = audioFinish;
+                break;
+        }
+        audioSource.Play();
     }
 
     private void Update()
@@ -27,6 +62,7 @@ public class PlayerMove : MonoBehaviour
         {
             rigid.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
             anim.SetBool("isJumping", true);
+            PlaySound("JUMP");
         }
              
         //Stop Speed
@@ -111,10 +147,14 @@ public class PlayerMove : MonoBehaviour
             if (isGold)
                 gameManager.stagePoint += 300;
 
+            PlaySound("ITEM");
+
             //Deactive Item
             collision.gameObject.SetActive(false);
         } else if (collision.gameObject.tag == "Finish")
         {
+            PlaySound("FINISH");
+
             //Next Stage
             gameManager.NextStage();
         }
@@ -131,6 +171,8 @@ public class PlayerMove : MonoBehaviour
         //Enemy Die
         EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
         enemyMove.OnDamaged();
+
+        PlaySound("ATTACK");
     }
 
     void OnDamaged(Vector2 targetPos)
@@ -146,10 +188,12 @@ public class PlayerMove : MonoBehaviour
 
         //Reaction Force
         int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
-        rigid.AddForce(new Vector2(dirc, 1) * 15, ForceMode2D.Impulse);
+        rigid.AddForce(new Vector2(dirc, 1) * 7, ForceMode2D.Impulse);
 
         //Animation
         anim.SetTrigger("doDamaged");
+
+        PlaySound("DAMAGED");
 
         Invoke("OffDamaged", 3);
 
@@ -171,6 +215,8 @@ public class PlayerMove : MonoBehaviour
         capsuleCollider.enabled = false;
         //Die Effect Jump
         rigid.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+
+        PlaySound("DIE");
     }
 
     public void VelocityZero()
